@@ -48,15 +48,15 @@ namespace itg
         bool addPoint(const glm::vec3& point);
         void debugDraw(float axisSize = 10.f);
         
-        ofMatrix4x4 transformMatrix() const { return frames.back(); }
-        ofMatrix4x4 normalMatrix() const;
+        glm::mat4 transformMatrix() const { return frames.back(); }
+        glm::mat4 normalMatrix() const;
         
         unsigned framesSize() const { return frames.size(); }
         unsigned pointsSize() const { return points.size(); }
         
-        deque<ofMatrix4x4>& getFrames() { return frames; }
+        deque<glm::mat4>& getFrames() { return frames; }
         
-        ofMatrix4x4 frameAt(unsigned idx) const { return frames[idx]; }
+        glm::mat4 frameAt(unsigned idx) const { return frames[idx]; }
         
         glm::vec3 getStartNormal() const { return startNormal; }
         glm::vec3 getCurrentTangent() const { return curTangent; }
@@ -77,6 +77,6 @@ namespace itg
         glm::vec3 prevTangent, curTangent;
         
         deque<glm::vec3> points;
-        deque<ofMatrix4x4> frames;
+        deque<glm::mat4> frames;
     };
 }

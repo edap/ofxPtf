@@ -69,7 +69,7 @@ namespace itg
 
         glm::vec3 b = glm::cross(t,n);
 
-        ofMatrix4x4 m(t[0], t[1], t[2], 0.0,
+        glm::mat4 m(t[0], t[1], t[2], 0.0,
                       b[0], b[1], b[2], 0.0,
                       n[0], n[1], n[2], 0.0,
                       points[0][0], points[0][1], points[0][2], 1.f); 
@@ -100,30 +100,40 @@ namespace itg
         
         if( ( glm::length(a) != 0.0 ) && ( r != 0.0 ) )
         {
-            ofMatrix4x4 R;
-            R.makeRotationMatrix(RAD_TO_DEG * r, a);		
-            ofMatrix4x4 Tj;
-            Tj.makeTranslationMatrix( points.back() );
-            ofMatrix4x4 Ti;
-            Ti.makeTranslationMatrix( -points[points.size() - 2] );
+
+
+            
+
+//            ofMatrix4x4 R;
+//            R.makeRotationMatrix(RAD_TO_DEG * r, a);		
+//            ofMatrix4x4 Tj;
+//            Tj.makeTranslationMatrix( points.back() );
+//            ofMatrix4x4 Ti;
+//            Ti.makeTranslationMatrix( -points[points.size() - 2] );
+
+            auto deg = RAD_TO_DEG * r;
+            auto R = glm::rotate((glm::mediump_float)deg, a);
+            auto Tj = glm::translate( points.back() );
+            auto Ti = glm::translate(  -points[points.size() - 2] );
             
             frames.push_back(frames.back() * Ti * R * Tj);
+
         }
         else
         {
-            ofMatrix4x4 Tr;
-            Tr.makeTranslationMatrix( points.back() - points[points.size() - 2] );
-            
+            auto Tr = glm::translate( points.back() - points[points.size() - 2] );
             frames.push_back(frames.back() * Tr);
         }
         prevTangent = curTangent;
         while (frames.size() > maxFrames) frames.pop_front();
     }
     
-    ofMatrix4x4 ParallelTransportFrames::normalMatrix() const
+    glm::mat4 ParallelTransportFrames::normalMatrix() const
     {
-        ofMatrix4x4 normalMatrix = ofMatrix4x4::getTransposedOf(const_cast<ofMatrix4x4&>(frames.back()).getInverse());
-        return ofMatrix4x4(normalMatrix(0, 0), normalMatrix(0, 1), normalMatrix(0, 2), 0.f,
+        //ofMatrix4x4 normalMatrix = ofMatrix4x4::getTransposedOf(const_cast<ofMatrix4x4&>(frames.back()).getInverse());
+
+        glm::mat4 normalMatrix = glm::transpose(glm::inverse(frames.back()));
+        return glm::mat4(normalMatrix(0, 0), normalMatrix(0, 1), normalMatrix(0, 2), 0.f,
                            normalMatrix(1, 0), normalMatrix(1, 1), normalMatrix(1, 2), 0.f,
                            normalMatrix(2, 0), normalMatrix(2, 1), normalMatrix(2, 2), 0.f,
                            0.f,                0.f,                0.f,                1.f);
@@ -131,7 +141,10 @@ namespace itg
     
     glm::vec3 ParallelTransportFrames::calcCurrentNormal() const
     {
-        return getStartNormal() * normalMatrix();
+        //glm::vec4 is represented as a column vector. Therefore, the proper form is:
+
+        //glm::vec4 result = m * v;
+        return  normalMatrix() * getStartNormal();
     }
     
     void ParallelTransportFrames::debugDraw(float axisSize)
