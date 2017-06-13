@@ -39,7 +39,7 @@ namespace itg
         
     }
     
-    bool ParallelTransportFrames::addPoint(const ofVec3f& point)
+    bool ParallelTransportFrames::addPoint(const glm::vec3& point)
     {
         points.push_back(point);
         while (points.size() > maxPoints) points.pop_front();
@@ -54,20 +54,20 @@ namespace itg
                           
     void ParallelTransportFrames::firstFrame()
     {
-        ofVec3f t = ( points[1] - points[0] ).normalize();
+        glm::vec3 t = glm::normalize( points[1] - points[0] );
 
-        ofVec3f n = t.crossed( points[2] - points[0] ).normalize();
-        if( n.length() == 0.0f )
+        glm::vec3 n = glm::normalize(glm::cross(t,points[2] - points[0]));
+        if( glm::length(n) == 0.0f )
         {
             int i = fabs( t[0] ) < fabs( t[1] ) ? 0 : 1;
             if( fabs( t[2] ) < fabs( t[i] ) ) i = 2;
 
-            ofVec3f v;
+            glm::vec3 v;
             v[i] = 1.f;
-            n = t.crossed( v ).normalize();
+            n = glm::normalize(glm::cross(t,v));
         }
 
-        ofVec3f b = t.crossed( n );
+        glm::vec3 b = glm::cross(t,n);
 
         ofMatrix4x4 m(t[0], t[1], t[2], 0.0,
                       b[0], b[1], b[2], 0.0,
@@ -83,22 +83,22 @@ namespace itg
     void ParallelTransportFrames::nextFrame()
     {
         curTangent = points.back() - points[points.size() - 2];
-        ofVec3f a;	// Rotation axis.
+        glm::vec3 a;	// Rotation axis.
         float r = 0;						// Rotation angle.
         
-        if( ( prevTangent.lengthSquared() != 0.0 ) && ( curTangent.lengthSquared() != 0.0 ) )
+        if( ( glm::length2(prevTangent) != 0.0 ) && ( glm::length2(curTangent) != 0.0 ) )
         {
-            curTangent.normalize();
-            float dot = prevTangent.dot( curTangent ); 
+            glm::vec3 curTangent = glm::normalize(curTangent);
+            float dot = glm::dot(prevTangent, curTangent);
             
             if( dot > 1.f ) dot = 1.f; 
             else if( dot < -1.0 ) dot = -1.0;
             
             r = acos( dot );
-            a = prevTangent.crossed( curTangent );
+            a = glm::cross(prevTangent, curTangent );
         }
         
-        if( ( a.length() != 0.0 ) && ( r != 0.0 ) )
+        if( ( glm::length(a) != 0.0 ) && ( r != 0.0 ) )
         {
             ofMatrix4x4 R;
             R.makeRotationMatrix(RAD_TO_DEG * r, a);		
@@ -129,7 +129,7 @@ namespace itg
                            0.f,                0.f,                0.f,                1.f);
     }
     
-    ofVec3f ParallelTransportFrames::calcCurrentNormal() const
+    glm::vec3 ParallelTransportFrames::calcCurrentNormal() const
     {
         return getStartNormal() * normalMatrix();
     }

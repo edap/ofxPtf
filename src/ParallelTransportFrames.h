@@ -45,7 +45,7 @@ namespace itg
         
         ParallelTransportFrames();
         
-        bool addPoint(const ofVec3f& point);
+        bool addPoint(const glm::vec3& point);
         void debugDraw(float axisSize = 10.f);
         
         ofMatrix4x4 transformMatrix() const { return frames.back(); }
@@ -58,10 +58,10 @@ namespace itg
         
         ofMatrix4x4 frameAt(unsigned idx) const { return frames[idx]; }
         
-        ofVec3f getStartNormal() const { return startNormal; }
-        ofVec3f getCurrentTangent() const { return curTangent; }
+        glm::vec3 getStartNormal() const { return startNormal; }
+        glm::vec3 getCurrentTangent() const { return curTangent; }
        
-        ofVec3f calcCurrentNormal() const;
+        glm::vec3 calcCurrentNormal() const;
         
         void clear();
         
@@ -73,10 +73,10 @@ namespace itg
         void firstFrame();
         void nextFrame();
         
-        ofVec3f startNormal;
-        ofVec3f prevTangent, curTangent;
+        glm::vec3 startNormal;
+        glm::vec3 prevTangent, curTangent;
         
-        deque<ofVec3f> points;
+        deque<glm::vec3> points;
         deque<ofMatrix4x4> frames;
     };
 }
